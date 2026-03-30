@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order">
+
+    <insert id="insert" parameterType="OrderVO">
+        INSERT INTO TBL_ORDER
+        VALUES(SEQ_ORDER.NEXTVAL, #{orderCount}, #{productId}, #{memberId})
+    </insert>
+
+    <update id="decreaseStock">
+        UPDATE TBL_PRODUCT
+        SET PRODUCT_STOCK = PRODUCT_STOCK - #{orderCount}
+        WHERE ID = #{productId}
+        AND PRODUCT_STOCK >= #{orderCount}
+    </update>
+
+    <update id="restoreStock">
+        UPDATE TBL_PRODUCT
+        SET PRODUCT_STOCK = PRODUCT_STOCK + #{orderCount}
+        WHERE ID = #{productId}
+    </update>
+
+    <select id="selectAll" resultType="OrderDTO">
+        SELECT
+            TBO.ID, TBO.ORDER_COUNT, TBO.PRODUCT_ID, TBO.MEMBER_ID,
+            TBO.ORDER_COUNT * TBP.PRODUCT_PRICE TOTAL_PRICE,
+            TBM.MEMBER_EMAIL, TBM.MEMBER_NAME,
+            TBP.PRODUCT_NAME, TBP.PRODUCT_PRICE, TBP.PRODUCT_STOCK
+        FROM TBL_ORDER TBO
+        JOIN TBL_MEMBER TBM ON TBO.MEMBER_ID = TBM.ID
+        JOIN TBL_PRODUCT TBP ON TBO.PRODUCT_ID = TBP.ID
+    </select>
+
+    <select id="selectById" parameterType="Long" resultType="OrderDTO">
+        SELECT
+            TBO.ID, TBO.ORDER_COUNT, TBO.PRODUCT_ID, TBO.MEMBER_ID,
+            TBO.ORDER_COUNT * TBP.PRODUCT_PRICE TOTAL_PRICE,
+            TBM.MEMBER_EMAIL, TBM.MEMBER_NAME,
+            TBP.PRODUCT_NAME, TBP.PRODUCT_PRICE, TBP.PRODUCT_STOCK
+        FROM TBL_ORDER TBO
+        JOIN TBL_MEMBER TBM ON TBO.MEMBER_ID = TBM.ID
+        JOIN TBL_PRODUCT TBP ON TBO.PRODUCT_ID = TBP.ID
+        WHERE TBO.ID = #{id}
+    </select>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM TBL_ORDER
+        WHERE ID = #{id}
+    </delete>
+
+</mapper>
